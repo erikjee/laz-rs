@@ -1,5 +1,9 @@
 use crate::las::file::SimpleReader;
 use crate::las::laszip::{LasZipCompressor, LasZipDecompressor, LazItem, LazVlr};
+use crate::las::{Point6};
+use crate::las::point6::{LasPoint6};
+use crate::packers::Packable;
+
 use std::io::{Cursor, Read, Seek};
 
 pub fn check_decompression<R1: Read + Seek, R2: Read + Seek>(laz_src: R1, las_src: R2) {
@@ -18,6 +22,23 @@ pub fn check_decompression<R1: Read + Seek, R2: Read + Seek>(laz_src: R1, las_sr
 
         assert_eq!(laz_pts, las_pts);
     }
+}
+
+pub fn check_decompression_bench<R1: Read + Seek>(laz_src: R1) {
+    let mut laz_reader = SimpleReader::new(laz_src).unwrap();
+    // let mut las_reader = SimpleReader::new(las_src).unwrap();
+    
+    let mut maxx = 0;
+    while let Some(laz_pts) = laz_reader.read_next() {
+        let laz_pts = laz_pts.unwrap();
+        println!("len: {:?}", laz_pts.len());
+        let point: Point6 = Point6::unpack_from(laz_pts);
+        
+        if point.x() > maxx {
+            maxx = point.x();
+        }
+    }
+    println!("maxx: {}", maxx);
 }
 
 pub fn check_that_we_can_decompress_what_we_compressed<R: Read + Seek>(
