@@ -6,6 +6,7 @@ use crate::packers::Packable;
 
 use std::io::{Cursor, Read, Seek};
 
+
 pub fn check_decompression<R1: Read + Seek, R2: Read + Seek>(laz_src: R1, las_src: R2) {
     let mut laz_reader = SimpleReader::new(laz_src).unwrap();
     let mut las_reader = SimpleReader::new(las_src).unwrap();
